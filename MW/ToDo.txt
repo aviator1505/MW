@@ -1,0 +1,28 @@
+Experiment Structure:
+
+Imports
+
+Stimulus files read as dataframes
+
+Welcome text
+
+Condition Assignment
+
+Stimulus file assignment based on condition assignment
+
+MW instruction loop
+    Trial Handler
+        .next()
+
+Reading Loop
+
+
+
+Space to continue
+    event.waitKeys('space')
+
+
+
+to implement trials, create different stimuli lists with the filenames stored as strings,
+then make a for loop that iterates over the given list. DUH?
+
