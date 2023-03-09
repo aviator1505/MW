@@ -17,19 +17,26 @@ sci2 = stims['SCi2'].dropna()
 trp = stims['trP'].dropna()
 lfp = stims['lfP'].dropna()
 print(pci)
+#
+# # Loop to display images:
+# for idx, val in pci.items():
+#     #extract each file name and store it for 1 run of the loop in a variable.
+#     pic2show = val
+#
+#     #create an image stimulus
+#     img = ImageStim(win, val)
+#     img.draw()
+#     win.flip()
+#
+#     #pause till p presses space.
+#     event.waitKeys(keyList= ['space'])
+# core.quit()
 
-# Loop to display images:
-for idx, val in pci.items():
-    #extract each file name and store it for 1 run of the loop in a variable.
-    pic2show = val
-
-    #create an image stimulus
+###### INSTRUCTION LOOP####
+for idx, val in trp.items():
+    # create an image stimulus
     img = ImageStim(win, val)
     img.draw()
     win.flip()
-
-    #pause till p presses space.
-    event.waitKeys(keyList= ['space'])
-
-
-core.quit()
+    # pause till p presses space.
+    event.waitKeys(keyList=['space'])
