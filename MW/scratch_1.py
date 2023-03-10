@@ -35,7 +35,11 @@ print(pci)
 ###### INSTRUCTION LOOP####
 for idx, val in trp.items():
     # create an image stimulus
-    img = ImageStim(win, val)
+    img = ImageStim(win, val, opacity = 1)
+    img.draw()
+    win.flip()
+    core.wait(2)
+    img = ImageStim(win, val, opacity = 0.5)
     img.draw()
     win.flip()
     # pause till p presses space.

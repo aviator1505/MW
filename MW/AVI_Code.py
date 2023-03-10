@@ -185,106 +185,111 @@ event.clearEvents()  # clear events just in case they recently pressed a relevan
 # change this to adjust the probes for the Reading loop
 # probe2 = [0, 91, 112, 74, 98, 113, 62, 92, 79, 76, 62]
 # first item in probe, 0, never happens because myCount starts at 1
-probe2 = [0, 10, 15, 19, 98, 113, 62, 92, 79, 76, 62]       
-if firstRoutine2:
-    firstRoutine2 = False
-    mainTimer2.reset(0)
-    probeTimer2.reset(0)
-    timerStarted2 = True
+probe2 = [0, 10, 15, 19, 98, 113, 62, 92, 79, 76, 62]
 
-# Reading Loop Start
+
+    # Reading Loop Start
 for idx, val in stimFile.items():
-    # Counter for iterating through our probe2 list
-    page = ImageStim(win, val)
-    page.draw()
-    win.flip()
 
-
-    # Reading code:
-    keys = event.getKeys()
-
-    if (mainTimer2.getTime() > 1080) and timerStarted2:
-        continueRoutine = False  # quit every routine once the main timer goes over 18 minutes
-
-    if firstLoop2:
-        keys = []
-        event.clearEvents()
-
-
-    if currCondition == 'SC':
-        # if Reading_key_resp.keys == 'space':
-        #     continueRoutine = False
-        if '1' in keys:
-            opacityImage2 = 1
-            TimeAbs = mainTimer2.getTime()
-            TimeSinceLast = probeTimer2.getTime()
-            keys = []
-            sc_img.draw()
-            win.flip()
-            event.clearEvents()
-
-        if (opacityImage2 == 1) and ('u' in keys or 'i' in keys):
-            opacityImage2 = 0
-            time2 = mainTimer2.getTime() - TimeAbs
-            resp2 = keys[0]
-            keys = []
-            event.clearEvents()
-            printNow = 1
-
-        if printNow == 1:
-            thisExp.addData('probe_appeared', TimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
-            thisExp.addData('time_since_last_probe',
-                            TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
-            thisExp.addData('response_delay', time2)  # log delay from probe appearing to response key being pressed
-            thisExp.addData('probe_key_response', resp2)  # log the key response to the probe
-            thisExp.addData('condition', currCondition)  # save the current condition
-            thisExp.nextEntry()  # if we do not move to the next line in the data file, then any other probes that occur before the end of this routine will overwrite our previous probe data
+        if firstRoutine2:
+            firstRoutine2 = False
+            mainTimer2.reset(0)
             probeTimer2.reset(0)
-            time1 = 0
-            time2 = 0
-            resp1 = 0
-            resp2 = 0
-            printNow = 0
+            timerStarted2 = True  # Counter for iterating through our probe2 list
 
+        page = ImageStim(win, val)
+        page.draw()
+        win.flip()
 
+        # Reading code:
+        keys = event.getKeys()
 
-    if currCondition == 'PC':
-        # if Reading_key_resp.keys == 'space':
-        #     continueRoutine = False
+        # if (mainTimer2.getTime() > 1080) and timerStarted2:
+        #     continueRoutine = False  # quit every routine once the main timer goes over 18 minutes
 
-        if opacityImage1 != 1 and (len(probe2) > myCount2) and probeTimer2.getTime() >= probe2[myCount2]:
-            opacityImage1 = 1
-            pc_img.draw()
-            win.flip()
-            TimeAbs = mainTimer2.getTime()
-            TimeSinceLast = probeTimer2.getTime()  # get the time since the last probe popped up
-
-        if opacityImage1 == 1 and ('0' in keys or 'i' in keys or 'u' in keys):
-            opacityImage1 = 0
-            time1 = mainTimer2.getTime() - TimeAbs
-            resp1 = keys[0]
+        if firstLoop2:
             keys = []
             event.clearEvents()
-            printNow = 1
 
-        if printNow == 1:
-            printNow = 0
-            thisExp.addData('probe_appeared', TimeAbs)  # log the time that the PC probe appeared
-            thisExp.addData('time_since_last_probe',
-                            TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
-            thisExp.addData('response_delay', time1)  # log delay from probe appearing to response key being pressed
-            thisExp.addData('probe_key_response', resp1)  # log the key response to the probe
-            thisExp.addData('condition', currCondition)  # save the current condition
-            thisExp.nextEntry()  # if we do not move to the next line in the data file, then any other probes that occur before the end of this routine will overwrite our previous probe data
-            probeTimer2.reset(0)
-            time1 = 0
-            time2 = 0
-            resp1 = 0
-            resp2 = 0
-            myCount2 = myCount2 + 1
+        if currCondition == 'SC':
+            # if Reading_key_resp.keys == 'space':
+            #     continueRoutine = False
+            if '1' in keys:
+                opacityImage2 = 1
+                TimeAbs = mainTimer2.getTime()
+                TimeSinceLast = probeTimer2.getTime()
+                keys = []
+                sc_img = ImageStim(win, image='SC_v2.PNG', opacity=opacityImage2)
+                sc_img.draw()
+                win.flip()
+                event.clearEvents()
 
-    page.draw()
-    win.flip()
-    event.waitKeys(keyList=['space'])
-    firstLoop2 = False
+            if (opacityImage2 == 1) and ('u' in keys or 'i' in keys):
+                opacityImage2 = 0
+                time2 = mainTimer2.getTime() - TimeAbs
+                resp2 = keys[0]
+                keys = []
+                event.clearEvents()
+                printNow = 1
+                sc_img = ImageStim(win, image='SC_v2.PNG', opacity=opacityImage2)
+                page.draw()
+                win.flip()
 
+            if printNow == 1:
+                thisExp.addData('probe_appeared',
+                                TimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
+                thisExp.addData('time_since_last_probe',
+                                TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
+                thisExp.addData('response_delay', time2)  # log delay from probe appearing to response key being pressed
+                thisExp.addData('probe_key_response', resp2)  # log the key response to the probe
+                thisExp.addData('condition', currCondition)  # save the current condition
+                thisExp.nextEntry()  # if we do not move to the next line in the data file, then any other probes that occur before the end of this routine will overwrite our previous probe data
+                probeTimer2.reset(0)
+                time1 = 0
+                time2 = 0
+                resp1 = 0
+                resp2 = 0
+                printNow = 0
+
+        if currCondition == 'PC':
+            # if Reading_key_resp.keys == 'space':
+            #     continueRoutine = False
+
+            if opacityImage1 != 1 and (len(probe2) > myCount2) and probeTimer2.getTime() >= probe2[myCount2]:
+                opacityImage1 = 1
+                pc_img = ImageStim(win, image='PC_v2.PNG', opacity=opacityImage1)
+                pc_img.draw()
+                win.flip()
+                TimeAbs = mainTimer2.getTime()
+                TimeSinceLast = probeTimer2.getTime()  # get the time since the last probe popped up
+
+            if opacityImage1 == 1 and ('0' in keys or 'i' in keys or 'u' in keys):
+                opacityImage1 = 0
+                time1 = mainTimer2.getTime() - TimeAbs
+                resp1 = keys[0]
+                keys = []
+                event.clearEvents()
+                printNow = 1
+                pc_img = ImageStim(win, image='PC_v2.PNG', opacity=opacityImage1)
+                page.draw()
+                win.flip()
+
+            if printNow == 1:
+                printNow = 0
+                thisExp.addData('probe_appeared', TimeAbs)  # log the time that the PC probe appeared
+                thisExp.addData('time_since_last_probe',
+                                TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
+                thisExp.addData('response_delay', time1)  # log delay from probe appearing to response key being pressed
+                thisExp.addData('probe_key_response', resp1)  # log the key response to the probe
+                thisExp.addData('condition', currCondition)  # save the current condition
+                thisExp.nextEntry()  # if we do not move to the next line in the data file, then any other probes that occur before the end of this routine will overwrite our previous probe data
+                probeTimer2.reset(0)
+                time1 = 0
+                time2 = 0
+                resp1 = 0
+                resp2 = 0
+                myCount2 = myCount2 + 1
+
+        if event.getKeys(keyList=['space']):
+
+        firstLoop2 = False
