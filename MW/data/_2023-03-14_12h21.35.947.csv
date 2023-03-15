@@ -1,0 +1,2 @@
+﻿probe_appeared,time_since_last_probe,response_delay,probe_key_response,condition,participant,gender,consent given,dateStr,
+3.0957752000003893,3.0957727000004525,0.9676237999992736,<psychopy.hardware.keyboard.KeyPress object at 0x00000299B3B1C250>,SC,,"['m', 'f', 'n/a']",False,2023-03-14_12h21.35.947,

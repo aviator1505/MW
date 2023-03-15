@@ -26,3 +26,12 @@ Space to continue
 to implement trials, create different stimuli lists with the filenames stored as strings,
 then make a for loop that iterates over the given list. DUH?
 
+The current problem with the loop is that the script is awaiting the spacebar before prompting me to press i or u.
+In other words, it will not display the intentionality prompt until I finish the loop
+
+
+The loop must satisfy the following conditions:
+    - space should end the loop and make it move on to the next item.
+    - when mw is reported via 1 and i,u, after the latter is pressed, the screen should return
+    to the current text page.
+    It should only advance to the next page when space is pressed.

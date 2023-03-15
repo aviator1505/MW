@@ -44,3 +44,9 @@ for idx, val in trp.items():
     win.flip()
     # pause till p presses space.
     event.waitKeys(keyList=['space'])
+
+
+
+
+
+

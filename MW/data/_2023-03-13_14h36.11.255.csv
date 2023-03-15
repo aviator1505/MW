@@ -1,0 +1,5 @@
+﻿probe_appeared,time_since_last_probe,response_delay,probe_key_response,condition,participant,gender,consent given,dateStr,
+3.3086331999948015,3.3086309999998775,1.1180122000005213,<psychopy.hardware.keyboard.KeyPress object at 0x0000023181744B80>,SC,,m,False,2023-03-13_14h36.11.255,
+12.930855099999462,8.504169599997113,1.193076600000495,<psychopy.hardware.keyboard.KeyPress object at 0x0000023181744E20>,SC,,m,False,2023-03-13_14h36.11.255,
+17.24602519999462,3.1220619000014267,2.9249689000062062,<psychopy.hardware.keyboard.KeyPress object at 0x0000023181744F40>,SC,,m,False,2023-03-13_14h36.11.255,
+28.050090899996576,7.8790656000055606,1.1030085000020335,<psychopy.hardware.keyboard.KeyPress object at 0x0000023181760520>,SC,,m,False,2023-03-13_14h36.11.255,
