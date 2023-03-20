@@ -175,11 +175,11 @@ for idx, val in instrFile.items():
 ##ONE TIME INITIALIZATION START
 # opacityImage1 = 0  # PC image opacity (by default our probe and intentionality images are hidden)
 # opacityImage2 = 0  # SC image opacity
-time1 = 0  # variables for recording response time data/ uised by PC
-time2 = 0 # used by SC
-resp1 = 0  # variables for recording key press data/ used by PC
-resp2 = 0 # used by SC
-# printNow = 0  # used to trigger data writing to output file
+time1 = 0  # variables for recording response time data
+time2 = 0
+resp1 = 0  # variables for recording key press data
+resp2 = 0
+printNow = 0  # used to trigger data writing to output file
 keys = ""  # stores keypress values
 # these three variables are used to start our timers at the right spot and avoid some edge cases
 firstLoop2 = True

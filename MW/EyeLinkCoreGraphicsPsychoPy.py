@@ -692,7 +692,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
 
 
 # A short testing script showing the basic usage of this library
-# We first instantiate a connection to the tracker (el_tracker), then we open
+# We first instantiate a connection to the tracker (tracker), then we open
 # a Pygame window (win). We then pass the tracker connection and the Pygame
 # window to the graphics environment constructor (CalibrationGraphics).
 # The graphics environment, once instantiated, can be configured to customize

@@ -105,7 +105,7 @@ if not os.path.exists(session_folder):
 # Step 1: Connect to the EyeLink Host PC
 #
 # The Host IP address, by default, is "100.1.1.1".
-# the "el_tracker" objected created here can be accessed through the Pylink
+# the "tracker" objected created here can be accessed through the Pylink
 # Set the Host PC address to "None" (without quotes) to run the script
 # in "Dummy Mode"
 if dummy_mode:
@@ -174,7 +174,7 @@ el_tracker.sendCommand("link_sample_data = %s" % link_sample_flags)
 # Optional tracking parameters
 # Sample rate, 250, 500, 1000, or 2000, check your tracker specification
 # if eyelink_ver > 2:
-#     el_tracker.sendCommand("sample_rate 1000")
+#     tracker.sendCommand("sample_rate 1000")
 # Choose a calibration type, H3, HV3, HV5, HV13 (HV = horizontal/vertical),
 el_tracker.sendCommand("calibration_type = HV9")
 # Set a gamepad button to accept calibration/drift check target
@@ -229,7 +229,7 @@ genv.setCalibrationColors(foreground_color, background_color)
 # genv.setMovieTarget(os.path.join('videos', 'calibVid.mov'))
 
 # Use a picture as the calibration target
-genv.setTargetType('picture')
+genv.setTargetType('circle')
 genv.setPictureTarget(os.path.join('Python/examples/Psychopy_examples/picture/images', 'fixTarget.bmp'))
 
 # Configure the size of the calibration target (in pixels)

@@ -113,7 +113,7 @@ elif rand == 2:
     # 50% chance of being in the SC condition
     currCondition = "SC"
 
-# CREATE A VARIABLE CALLED currConditionP and set it depending on randP
+# CREATE A VARIABLE CALLED currConditionP and set it depending on randPage
 if randP == 3:
     # 50% chance of being Tropo pages
     currConditionP = "Tropo"
