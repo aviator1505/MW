@@ -166,7 +166,7 @@ for idx, val in instrFile.iteritems():
 # opacityImage1 = 0  # PC image opacity (by default our probe and intentionality images are hidden)
 # opacityImage2 = 0  # SC image opacity
 timePC = 0  # variables for recording response time data/ used by PC
-timeSC = 0 # used by SC
+Response_Delay = 0 # used by SC
 respPC = 0  # variables for recording key press data/ used by PC
 respSC = 0 # used by SC
 # printNow = 0  # used to trigger data writing to output file
@@ -176,7 +176,7 @@ keys = ""  # stores keypress values
 
 # start two clocks
 mainTimer = core.Clock()
-probe_absoluteTimer = core.Clock()
+probe_on_page_Timer = core.Clock()
 probeTimer = core.Clock()
 pageTimer = core.Clock()
 pagedwellTimer = core.Clock()
@@ -203,16 +203,22 @@ if currCondition == 'SC':
         # Display the current image:
         page.draw()
         win.flip()
-
+        page_display_start_time = pageTimer.getTime()
         # Wait for key press:
         keys = event.waitKeys()
 
-        if 'space' in keys:
+        if 'space' in keys:   # If space is pressed, log time spent on page and switch page.
             current_index = (current_index + 1) % len(stimFile)
+            pageDwell = pagedwellTimer.getTime()
+            thisExp.addData('time_on_page', pageDwell)
+            thisExp.nextEntry()
+            pageDwell.reset(0)
 
         if '1' in keys:
-            TimeAbs = mainTimer.getTime()
-            TimeSinceLast = probeTimer.getTime()
+            ProbeTimeAbs = mainTimer.getTime()
+            TimeSinceLastProbe = probeTimer.getTime()
+            probe_page = probeTimer.getTime() - page_display_start_time
+
             sc_img.draw()
             win.flip()
 
@@ -220,7 +226,7 @@ if currCondition == 'SC':
 
             if 'i' in keys or 'u' in keys:
 
-                timeSC = mainTimer.getTime() - TimeAbs
+                Response_Delay = mainTimer.getTime() - ProbeTimeAbs
 
 
                 # Store MW Intentionality responses based on keypress
@@ -228,23 +234,26 @@ if currCondition == 'SC':
                     thisExp.addData('probe_key_response', 'Intentional Mind Wandering')  # log the key response to the probe
                 if 'u' in keys:
                     thisExp.addData('probe_key_response', 'Unintentional Mind Wandering')
-                thisExp.addData('page',stimFile.iloc[current_index])
-                thisExp.addData('probe_appeared',
-                                TimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
-                thisExp.addData('time_since_last_probe',
-                                TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
-                thisExp.addData('response_delay', timeSC)  # log delay from probe appearing to response key being pressed
+                thisExp.addData('page', stimFile.iloc[current_index])
+                thisExp.addData('thisPage_display_time', page_display_start_time)
+                thisExp.addData('thisPage_probe_appearance_time', probe_page)
 
-
+                thisExp.addData('probe_appeared', ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
+                thisExp.addData('time_since_last_probe', TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
+                thisExp.addData('response_delay', Response_Delay)  # log delay from probe appearing to response key being pressed
                 thisExp.addData('condition', currCondition)  # save the current condition
                 thisExp.nextEntry()
+
+                # Reset all the timers since we only want timings pertaining to the current loop.
+
                 probeTimer.reset(0)
                 timePC = 0
-                timeSC = 0
+                Response_Delay = 0
                 respPC = []
                 respSC = []
                 page.draw()
                 win.flip()
+
         event.clearEvents()
 
 
