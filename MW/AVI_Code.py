@@ -137,18 +137,15 @@ thisExp = data.ExperimentHandler(name='MW_Eyelink', version='1.0',  # not needed
 
 ####################### INITIALIZE Components ########################################.
 # Window
-win = visual.Window([1920, 1080], fullscr=False, units='pix')
+win = visual.Window(fullscr=True, units='height')
 # Keyboard
 kb = keyboard.Keyboard()
 
 ############################### Stimuli ###############################
 # Screen 1
-welcome = visual.TextStim(win, text= welcome_text)
+welcome = visual.TextStim(win, text=welcome_text)
 welcome.draw()
 win.flip()
-
-
-
 
 # Mind wandering instructions based on Condition defined above.
 ##### INSTRUCTION LOOP####
@@ -166,20 +163,18 @@ for idx, val in instrFile.iteritems():
 # opacityImage1 = 0  # PC image opacity (by default our probe and intentionality images are hidden)
 # opacityImage2 = 0  # SC image opacity
 timePC = 0  # variables for recording response time data/ used by PC
-Response_Delay = 0 # used by SC
+Response_Delay = 0  # used by SC
 respPC = 0  # variables for recording key press data/ used by PC
-respSC = 0 # used by SC
+respSC = 0  # used by SC
 # printNow = 0  # used to trigger data writing to output file
 keys = ""  # stores keypress values
 
-
-
 # start two clocks
 mainTimer = core.Clock()
-probe_on_page_Timer = core.Clock()
 probeTimer = core.Clock()
 pageTimer = core.Clock()
 pagedwellTimer = core.Clock()
+ProbePage = core.Clock()
 
 # this one stops and restarts every time one of our probe/intentionality images pops up
 myCount = 1  # this counts up and tells which value from the probe list we should use
@@ -198,26 +193,28 @@ if currCondition == 'SC':
     while current_index != 16:
 
         # Load the current image
-        page = visual.ImageStim(win, image=stimFile.iloc[current_index])
+        page = visual.ImageStim(win, image=stimFile.iloc[current_index], size=1)
 
         # Display the current image:
         page.draw()
         win.flip()
+        thisExp.addData('page', stimFile.iloc[current_index])
         page_display_start_time = pageTimer.getTime()
+        page_start = ProbePage.getTime()
         # Wait for key press:
         keys = event.waitKeys()
 
-        if 'space' in keys:   # If space is pressed, log time spent on page and switch page.
+        if 'space' in keys:  # If space is pressed, log time spent on page and switch page.
             current_index = (current_index + 1) % len(stimFile)
             pageDwell = pagedwellTimer.getTime()
-            thisExp.addData('time_on_page', pageDwell)
+            thisExp.addData('time_spent_on_page', pageDwell)
             thisExp.nextEntry()
-            pageDwell.reset(0)
+            pagedwellTimer.reset(0)
 
         if '1' in keys:
             ProbeTimeAbs = mainTimer.getTime()
-            TimeSinceLastProbe = probeTimer.getTime()
-            probe_page = probeTimer.getTime() - page_display_start_time
+            TimeSinceLastProbe = probeTimer.getTime()  # only gets called when probe appears.
+            probe_page = ProbePage.getTime() - page_start
 
             sc_img.draw()
             win.flip()
@@ -228,19 +225,22 @@ if currCondition == 'SC':
 
                 Response_Delay = mainTimer.getTime() - ProbeTimeAbs
 
-
                 # Store MW Intentionality responses based on keypress
                 if 'i' in keys:
-                    thisExp.addData('probe_key_response', 'Intentional Mind Wandering')  # log the key response to the probe
+                    thisExp.addData('probe_key_response',
+                                    'Intentional Mind Wandering')  # log the key response to the probe
                 if 'u' in keys:
                     thisExp.addData('probe_key_response', 'Unintentional Mind Wandering')
                 thisExp.addData('page', stimFile.iloc[current_index])
                 thisExp.addData('thisPage_display_time', page_display_start_time)
-                thisExp.addData('thisPage_probe_appearance_time', probe_page)
+                thisExp.addData('thisPage_probe_time', probe_page)  # time after page display when probe appears.
 
-                thisExp.addData('probe_appeared', ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
-                thisExp.addData('time_since_last_probe', TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
-                thisExp.addData('response_delay', Response_Delay)  # log delay from probe appearing to response key being pressed
+                thisExp.addData('probe_appeared',
+                                ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
+                thisExp.addData('time_since_last_probe',
+                                TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
+                thisExp.addData('response_delay',
+                                Response_Delay)  # log delay from probe appearing to response key being pressed
                 thisExp.addData('condition', currCondition)  # save the current condition
                 thisExp.nextEntry()
 
@@ -255,8 +255,6 @@ if currCondition == 'SC':
                 win.flip()
 
         event.clearEvents()
-
-
 
 #
 # myCount2 = 1

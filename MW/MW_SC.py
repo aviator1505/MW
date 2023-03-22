@@ -24,15 +24,13 @@ logging.console.setLevel(logging.CRITICAL)
 # Set up PsychoPy Reading Stimuli:
 stims = pd.read_csv('All_Stim2.csv')
 
-pci = stims['Pci'].dropna()
-pci2 = stims['PCi2'].dropna()
 sci = stims['Sci'].dropna()
 sci2 = stims['SCi2'].dropna()
 trp = stims['trP'].dropna()
 lfp = stims['lfP'].dropna()
 
 # Window
-win = visual.Window([1920, 1080], fullscr=False, units='pix')
+# win = visual.Window(fullscr=False, units='height')
 # Keyboard
 kb = psychopy.hardware.keyboard.Keyboard()
 
@@ -53,48 +51,28 @@ Press "Space bar" to continue.
 
 # Use the machine time as a seed to generate a random number from (allows for closer to "truly random" numbers)
 random.seed(int(time.process_time()))
-# set variable myRand to a random number (either 1 or 2); myRandP (EITHER 3 OR 4)
-randCondition = random.randint(1, 2)  # random number for choosing experimental condition order
-randPage = random.randint(3, 4)  # random number for choosing reading pages order
-
-# set new variable 'currCondition' depending on what random number we generated
-if randCondition == 1:
-    # 50% chance of being in the PC condition
-    currCondition = "PC"
-elif randCondition == 2:
-    # 50% chance of being in the SC condition
-    currCondition = "SC"
+# set variable myRandP (EITHER 1 OR 2)
+randPage = random.randint(1, 2)  # random number for choosing reading pages order
 
 # CREATE A VARIABLE CALLED currConditionP and set it depending on randPage
-if randPage == 3:
+if randPage == 1:
     # 50% chance of being Tropo pages
     currConditionP = "Tropo"
-elif randPage == 4:
+elif randPage == 2:
     # 50% chance of being Life pages
     currConditionP = "Life"
 
 # For testing purposes we can set our condition and pages here.
 # Just comment out the two lines below to run the experiment randomly.
 currCondition = 'SC'
-currConditionP = 'Tropo'
+# currConditionP = 'Tropo'
 
 ###################################################################### File Assignment #####################################################
 # 2. setFiles
 # SETTING ALL OUR FILE VARIABLES FOR THE EXPERIMENT BASED ON currCondition AND currConditionPs
-if currCondition == "PC":
-    # if we're in the PC condition then show the PC instructions first run and the SC instructions second run
 
-    instrFile = pci
-    # InstrFile2 = pci2
-    # if we're in the PC condition then show the PC probe message first run and the SC probe message second run
-    probeMessage = "Remember, when the probe appears on screen: \n Press 'i' if your MW was intentional (on purpose), " \
-                   "or 'u' if it was unintentional (just happened on its own). \n Press '0' if you were not " \
-                   "experiencing MW when the probe appeared. "
-    probeMessage2 = "Remember: Press '1' any time you catch yourself mind wandering (MW). \n When prompted, press 'i' " \
-                    "if your MW was intentional (on purpose), or 'u' if it was unintentional (just happened on its " \
-                    "own). "
 
-elif currCondition == "SC":
+if currCondition == "SC":
     # if we're in the SC condition then show the SC instructions first run and the PC instructions second run
     instrFile = sci
     # InstrFile2 = sci2
@@ -126,7 +104,7 @@ dlg = gui.DlgFromDict(info, fixed=['dateStr'])
 filename = "data/%s_%s" % (info['participant'], info['dateStr'])
 
 # create our experiment object to save data
-thisExp = data.ExperimentHandler(name='MW_Eyelink', version='1.0',  # not needed, just handy
+thisExp = data.ExperimentHandler(name='MW_SC_Eyelink', version='1.0',  # not needed, just handy
                                  extraInfo=info,  # the info we created earlier
                                  dataFileName=filename)  # using our string with data/name_date
 
@@ -283,7 +261,7 @@ print(genv)  # print out the version number of the CoreGraphics library
 
 # Set background and foreground colors for the calibration target
 # in PsychoPy, (-1, -1, -1)=black, (1, 1, 1)=white, (0, 0, 0)=mid-gray
-foreground_color = (0, 0, 0)
+foreground_color = (1, 1, 1)
 background_color = win.color
 genv.setCalibrationColors(foreground_color, background_color)
 
@@ -316,7 +294,7 @@ def show_msg(win, text, wait_for_keypress=True):
 
     # wait indefinitely, terminates upon any key press
     if wait_for_keypress:
-        kb.waitKeys()
+        kb.waitKeys(keyList=['space'])
         clear_screen(win)
 
 
@@ -394,8 +372,7 @@ def abort_trial():
 # Step 5: Set up the camera and calibrate the tracker
 
 # Show the task instructions
-task_msg = 'In the task, you may press the SPACEBAR to end a trial\n' + \
-           '\nPress Ctrl-C to if you need to quit the task early\n'
+task_msg = welcome_text
 if dummy_mode:
     task_msg = task_msg + '\nNow, press ENTER to start the task'
 else:
@@ -410,14 +387,6 @@ if not dummy_mode:
         print('ERROR:', err)
         el_tracker.exitCalibration()
 
-time1 = 0  # variables for recording response time data
-time2 = 0
-resp1 = 0  # variables for recording key press data
-resp2 = 0
-printNow = 0  # used to trigger data writing to output file
-keys = ""  # stores keypress values
-# these three variables are used to start our timers at the right spot and avoid some edge cases
-
 timerStarted2 = False
 # start two clocks
 mainTimer = core.Clock()
@@ -426,9 +395,24 @@ pagedwellTimer = core.Clock()
 ProbePage = core.Clock()
 probeTimer = core.Clock()  # this one stops and restarts every time one of our probe/intentionality images pops up
 myCount = 1  # this counts up and tells which value from the probe list we should use
+sc_img = visual.ImageStim(win, image='SC_v2.PNG')
 
-# clear the keyboard buffer just in case they recently pressed a relevant key
+############################### Stimuli ###############################
+# Screen 1
+welcome = visual.TextStim(win, text=welcome_text)
+welcome.draw()
+win.flip()
 
+# Mind wandering instructions based on Condition defined above.
+##### INSTRUCTION LOOP####
+# Screen 2
+for idx, val in instrFile.iteritems():
+    # create an image stimulus
+    img = visual.ImageStim(win, val, size=(2560, 1440))
+    img.draw()
+    win.flip()
+    # pause till p presses space.
+    kb.waitKeys(keyList=['space'])
 
 if currCondition == 'SC':
     # make an index to keep track of the iteration of page being displayed.
@@ -446,7 +430,7 @@ if currCondition == 'SC':
         # clear the host screen before we draw the backdrop
         el_tracker.sendCommand('clear_screen 0')
 
-        page = visual.ImageStim(win, image=stimFile.iloc[current_index])
+        page = visual.ImageStim(win, image=stimFile.iloc[current_index], size= 1440)
 
         im = Image.open(stimFile.iloc[current_index])  # read image with PIL
         im = im.resize((scn_width, scn_height))
@@ -513,9 +497,15 @@ if currCondition == 'SC':
         pylink.pumpDelay(100)
 
         # show the image, and log a message to mark the onset of the image
-        clear_screen(win)
+        # Display the current image:
+
         page.draw()
         win.flip()
+        thisExp.addData('page', stimFile.iloc[current_index])
+        page_display_start_time = pageTimer.getTime()
+        page_start = ProbePage.getTime()
+        # Wait for key press:
+        keys = kb.waitKeys()
         el_tracker.sendMessage('image_onset')
         img_onset_time = core.getTime()  # record the image onset time
 
@@ -540,15 +530,6 @@ if currCondition == 'SC':
         # "Protocol for EyeLink Data to Viewer Integration"
         ia_pars = (1, left, top, right, bottom, 'screen_center')
         el_tracker.sendMessage('!V IAREA RECTANGLE %d %d %d %d %d %s' % ia_pars)
-
-        # Display the current image:
-        page.draw()
-        win.flip()
-        thisExp.addData('page', stimFile.iloc[current_index])
-        page_display_start_time = pageTimer.getTime()
-        page_start = ProbePage.getTime()
-        # Wait for key press:
-        keys = event.waitKeys()
 
         if 'space' in keys:  # If space is pressed, log time spent on page and switch page.
             current_index = (current_index + 1) % len(stimFile)
@@ -603,7 +584,7 @@ if currCondition == 'SC':
         event.clearEvents()
 
         # clear the screen
-        clear_screen(win)
+
         el_tracker.sendMessage('blank_screen')
         # send a message to clear the Data Viewer screen as well
         el_tracker.sendMessage('!V CLEAR 128 128 128')
@@ -621,3 +602,10 @@ if currCondition == 'SC':
         # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
         # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
         el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
+
+
+end_message = 'You have now completed part 1 of the experiment. Please contact the researcher to help you get started with part 2.'
+
+show_msg(win, end_message)
+
+core.quit()
