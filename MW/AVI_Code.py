@@ -19,21 +19,11 @@ import pandas as pd
 from psychopy.hardware import keyboard
 from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy
 
-# Set up EyeLink connection
-eyelink = pylink.EyeLink('100.1.1.1')  # Replace with EyeLink IP address
-eyelink.sendCommand("screen_pixel_coords = 0 0 1919 1079")
-eyelink.sendCommand("select_parser_configuration 0")
-eyelink.sendCommand("file_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON")
-eyelink.sendCommand("file_sample_data = LEFT,RIGHT,GAZE,AREA,GAZERES,STATUS,HTARGET")
-eyelink.sendCommand("link_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,BUTTON")
-eyelink.sendCommand("link_sample_data = LEFT,RIGHT,GAZE,AREA,GAZERES,STATUS,HTARGET")
-pylink.openGraphics()
-eyelink.doTrackerSetup()
-
+# Set up EyeLink connectio
 
 stims = pd.read_csv('All_Stim2.csv')
 
-pci: Union[Series, DataFrame] = stims['Pci'].dropna()
+pci = stims['Pci'].dropna()
 pci2 = stims['PCi2'].dropna()
 sci = stims['Sci'].dropna()
 sci2 = stims['SCi2'].dropna()
@@ -45,7 +35,7 @@ lfp = stims['lfP'].dropna()
 win = visual.Window([1920, 1080], fullscr=False, units='pix')
 # Keyboard
 kb = keyboard.Keyboard()
-#######################################################################     Experiment  Instruction Texts                     #######################################################################
+#######################################################################     Experiment  Instruction Texts #######################################################################
 
 welcome_text = '''
 Hello! Thank you for participating in our experiment! 
@@ -135,8 +125,8 @@ elif currConditionP == "Tropo":
 info = {'participant': '', 'gender': ['m', 'f', 'n/a'], 'consent given': False, 'dateStr': data.getDateStr()}
 # present dialog to participant
 dlg = gui.DlgFromDict(info, fixed=['dateStr'])
-if dlg.OK == False or not info['consent given']:
-    core.quit()
+# if dlg.OK == False or not info['consent given']:
+#     core.quit()
 
 filename = "data/%s_%s" % (info['participant'], info['dateStr'])
 
@@ -163,9 +153,9 @@ win.flip()
 # Mind wandering instructions based on Condition defined above.
 ##### INSTRUCTION LOOP####
 # Screen 2
-for idx, val in instrFile.items():
+for idx, val in instrFile.iteritems():
     # create an image stimulus
-    img = ImageStim(win, val)
+    img = visual.ImageStim(win, val)
     img.draw()
     win.flip()
     # pause till p presses space.
@@ -175,31 +165,31 @@ for idx, val in instrFile.items():
 ##ONE TIME INITIALIZATION START
 # opacityImage1 = 0  # PC image opacity (by default our probe and intentionality images are hidden)
 # opacityImage2 = 0  # SC image opacity
-time1 = 0  # variables for recording response time data/ uised by PC
-time2 = 0 # used by SC
-resp1 = 0  # variables for recording key press data/ used by PC
-resp2 = 0 # used by SC
+timePC = 0  # variables for recording response time data/ used by PC
+timeSC = 0 # used by SC
+respPC = 0  # variables for recording key press data/ used by PC
+respSC = 0 # used by SC
 # printNow = 0  # used to trigger data writing to output file
 keys = ""  # stores keypress values
-# these three variables are used to start our timers at the right spot and avoid some edge cases
-firstLoop2 = True
 
-timerStarted2 = False
+
+
 # start two clocks
 mainTimer = core.Clock()
-probeTimer = core.Clock()  # this one stops and restarts every time one of our probe/intentionality images pops up
+probe_absoluteTimer = core.Clock()
+probeTimer = core.Clock()
+pageTimer = core.Clock()
+pagedwellTimer = core.Clock()
+
+# this one stops and restarts every time one of our probe/intentionality images pops up
 myCount = 1  # this counts up and tells which value from the probe list we should use
 # clear the keyboard buffer just in case they recently pressed a relevant key
-looptime = core.Clock()
+
 ##ONE TIME INITIALIZATION END
 
-pc_img = ImageStim(win, image='PC_v2.PNG')
-sc_img = ImageStim(win, image='SC_v2.PNG')
-myCount2 = 1
-event.clearEvents()  # clear events just in case they recently pressed a relevant key
-# here's a list of the time in seconds between probes change this to adjust the probes for the Reading loop
-probe2 = [0, 91, 112, 74, 98, 113, 62, 92, 79, 76, 62]
-# first item in probe, 0, never happens because myCount starts at 1
+pc_img = visual.ImageStim(win, image='PC_v2.PNG')
+sc_img = visual.ImageStim(win, image='SC_v2.PNG')
+
 if currCondition == 'SC':
     # make an index to keep track of the iteration of page being displayed.
     current_index = 0
@@ -208,7 +198,7 @@ if currCondition == 'SC':
     while current_index != 16:
 
         # Load the current image
-        page = ImageStim(win, image=stimFile.iloc[current_index])
+        page = visual.ImageStim(win, image=stimFile.iloc[current_index])
 
         # Display the current image:
         page.draw()
@@ -229,65 +219,82 @@ if currCondition == 'SC':
             keys = kb.waitKeys(keyList=['i', 'u'])
 
             if 'i' in keys or 'u' in keys:
-                time2 = mainTimer.getTime() - TimeAbs
-                resp2 = keys[-1]
+
+                timeSC = mainTimer.getTime() - TimeAbs
+
+
+                # Store MW Intentionality responses based on keypress
+                if 'i' in keys:
+                    thisExp.addData('probe_key_response', 'Intentional Mind Wandering')  # log the key response to the probe
+                if 'u' in keys:
+                    thisExp.addData('probe_key_response', 'Unintentional Mind Wandering')
+                thisExp.addData('page',stimFile.iloc[current_index])
                 thisExp.addData('probe_appeared',
                                 TimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
                 thisExp.addData('time_since_last_probe',
                                 TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
-                thisExp.addData('response_delay', time2)  # log delay from probe appearing to response key being pressed
-                thisExp.addData('probe_key_response', resp2)  # log the key response to the probe
+                thisExp.addData('response_delay', timeSC)  # log delay from probe appearing to response key being pressed
+
+
                 thisExp.addData('condition', currCondition)  # save the current condition
                 thisExp.nextEntry()
                 probeTimer.reset(0)
-                time1 = 0
-                time2 = 0
-                resp1 = 0
-                resp2 = 0
+                timePC = 0
+                timeSC = 0
+                respPC = []
+                respSC = []
                 page.draw()
                 win.flip()
         event.clearEvents()
 
-if currCondition == "PC":
 
-    current_index = 0
 
-    # Start a loop that will continue until the escape key is pressed
-    while current_index != 16:
-
-        # Load the current image
-        page = ImageStim(win, image=stimFile.iloc[current_index])
-
-        # Display the current image:
-        page.draw()
-        win.flip()
-
-        keys = kb.waitKeys(keyList=['i', 'u', '0', 'space'])
-
-        if 'space' in keys:
-            current_index = (current_index + 1) % len(stimFile)
-
-        if (len(probe2) > myCount2) and probeTimer2.getTime() >= probe2[myCount2]:
-            pc_img.draw()
-            win.flip()
-            TimeAbs = mainTimer2.getTime()
-            TimeSinceLast = probeTimer2.getTime()
-
-        keys = kb.waitKeys(keyList=['i', 'u', '0'])  # get the time since the last probe popped up
-
-        if '0' in keys or 'i' in keys or 'u' in keys:
-            time1 = mainTimer2.getTime() - TimeAbs
-            resp1 = keys[0]
-            keys = []
-            thisExp.addData('probe_appeared', TimeAbs)  # log the time that the PC probe appeared
-            thisExp.addData('time_since_last_probe', TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
-            thisExp.addData('response_delay', time1)  # log delay from probe appearing to response key being pressed
-            thisExp.addData('probe_key_response', resp1)  # log the key response to the probe
-            thisExp.addData('condition', currCondition)  # save the current condition
-            thisExp.nextEntry()  # if we do not move to the next line in the data file, then any other probes that occur before the end of this routine will overwrite our previous probe data
-            probeTimer2.reset(0)
-            time1 = 0
-            time2 = 0
-            resp1 = 0
-            resp2 = 0
-            myCount2 = myCount2 + 1
+#
+# myCount2 = 1
+# event.clearEvents()  # clear events just in case they recently pressed a relevant key
+# # here's a list of the time in seconds between probes change this to adjust the probes for the Reading loop
+# probe2 = [0, 91, 112, 74, 98, 113, 62, 92, 79, 76, 62]
+# # first item in probe, 0, never happens because myCount starts at 1
+# if currCondition == "PC":
+#
+#     current_index = 0
+#
+#     # Start a loop that will continue until the escape key is pressed
+#     while current_index != 16:
+#
+#         # Load the current image
+#         page = ImageStim(win, image=stimFile.iloc[current_index])
+#
+#         # Display the current image:
+#         page.draw()
+#         win.flip()
+#
+#         keys = kb.waitKeys(keyList=['i', 'u', '0', 'space'])
+#
+#         if 'space' in keys:
+#             current_index = (current_index + 1) % len(stimFile)
+#
+#         if (len(probe2) > myCount2) and probeTimer2.getTime() >= probe2[myCount2]:
+#             pc_img.draw()
+#             win.flip()
+#             TimeAbs = mainTimer2.getTime()
+#             TimeSinceLast = probeTimer2.getTime()
+#
+#         keys = kb.waitKeys(keyList=['i', 'u', '0'])  # get the time since the last probe popped up
+#
+#         if '0' in keys or 'i' in keys or 'u' in keys:
+#             timePC = mainTimer2.getTime() - TimeAbs
+#             respPC = keys[0]
+#             keys = []
+#             thisExp.addData('probe_appeared', TimeAbs)  # log the time that the PC probe appeared
+#             thisExp.addData('time_since_last_probe', TimeSinceLast)  # log time since last probe. Should be time since start of experiment if this is the first probe
+#             thisExp.addData('response_delay', timePC)  # log delay from probe appearing to response key being pressed
+#             thisExp.addData('probe_key_response', respPC)  # log the key response to the probe
+#             thisExp.addData('condition', currCondition)  # save the current condition
+#             thisExp.nextEntry()  # if we do not move to the next line in the data file, then any other probes that occur before the end of this routine will overwrite our previous probe data
+#             probeTimer2.reset(0)
+#             timePC = 0
+#             timeSC = 0
+#             respPC = 0
+#             respSC = 0
+#             myCount2 = myCount2 + 1

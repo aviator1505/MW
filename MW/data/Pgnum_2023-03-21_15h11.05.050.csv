@@ -1,0 +1,5 @@
+﻿page,probe_appeared,time_since_last_probe,response_delay,probe_key_response,condition,participant,gender,consent given,dateStr,
+17.1.png,4.574984599996242,4.574982100006309,1.1811070999974618,Intentional Mind Wandering,SC,Pgnum,m,True,2023-03-21_15h11.05.050,
+17.2.png,6.689852999988943,0.9336945000104606,1.2975023000035435,Unintentional Mind Wandering,SC,Pgnum,m,True,2023-03-21_15h11.05.050,
+17.3.png,8.814726700002211,0.8273165999999037,0.5202465999900596,Unintentional Mind Wandering,SC,Pgnum,m,True,2023-03-21_15h11.05.050,
+17.3.png,10.062828800000716,0.7277970000141067,0.8549152999912621,Unintentional Mind Wandering,SC,Pgnum,m,True,2023-03-21_15h11.05.050,

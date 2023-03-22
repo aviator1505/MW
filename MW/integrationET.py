@@ -2,13 +2,15 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import psychopy.hardware.keyboard
 import pylink
 import platform
 import random
 import time
 import sys
+import pandas as pd
 from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy
-from psychopy import visual, core, event, monitors, gui, logging
+from psychopy import visual, core, event, monitors, gui, logging, hardware, data
 from PIL import Image  # for preparing the Host backdrop image
 from string import ascii_letters, digits
 
@@ -32,7 +34,7 @@ lfp = stims['lfP'].dropna()
 # Window
 win = visual.Window([1920, 1080], fullscr=False, units='pix')
 # Keyboard
-kb = keyboard.Keyboard()
+kb = psychopy.hardware.keyboard.Keyboard()
 
 # Experiment  Instruction Texts
 
@@ -118,24 +120,24 @@ elif currConditionP == "Tropo":
 info = {'participant': '', 'gender': ['m', 'f', 'n/a'], 'consent given': False, 'dateStr': data.getDateStr()}
 # present dialog to participant
 dlg = gui.DlgFromDict(info, fixed=['dateStr'])
-if dlg.OK == False or not info['consent given']:
-    core.quit()
+# if dlg.OK == False or not info['consent given']:
+#     core.quit()
 
 filename = "data/%s_%s" % (info['participant'], info['dateStr'])
 
 # create our experiment object to save data
 thisExp = data.ExperimentHandler(name='MW_Eyelink', version='1.0',  # not needed, just handy
                                  extraInfo=info,  # the info we created earlier
-                                 dataFileName=filename)  # using our string with data/name_date)
+                                 dataFileName=filename)  # using our string with data/name_date
 
 # Set this variable to True to run the script in "Dummy Mode"
-dummy_mode = False
+dummy_mode = True
 
 # Set up EDF data file name and local data folder
 #
 # The EDF data filename should not exceed 8 alphanumeric characters
 # use ONLY number 0-9, letters, & _ (underscore) in the filename
-edf_fname = "data/%s_%s" % (info['participant'], info['dateStr'])
+edf_fname = info['participant']
 
 # Prompt user to specify an EDF data filename
 # before we open a fullscreen window
@@ -257,7 +259,7 @@ el_tracker.sendCommand("calibration_type = HV9")
 #
 # Open a window, be sure to specify monitor parameters
 mon = monitors.Monitor('myMonitor', width=53.0, distance=70.0)
-win = visual.Window(fullscr=full_screen,
+win = visual.Window(fullscr=True,
                     monitor=mon,
                     winType='pyglet',
                     units='pix')
@@ -285,7 +287,9 @@ foreground_color = (0, 0, 0)
 background_color = win.color
 genv.setCalibrationColors(foreground_color, background_color)
 
-genv.setTargetType('circle').setTargetSize(24).setCalibrationSounds('', '', '')
+genv.setTargetType(type='circle')
+genv.setTargetSize(24)
+# genv.setCalibrationSounds('', '', '')
 
 # Request Pylink to use the PsychoPy window we opened above for calibration
 pylink.openGraphicsEx(genv)
@@ -386,6 +390,7 @@ def abort_trial():
 
     return pylink.TRIAL_ERROR
 
+
 # Step 5: Set up the camera and calibrate the tracker
 
 # Show the task instructions
@@ -404,9 +409,6 @@ if not dummy_mode:
     except RuntimeError as err:
         print('ERROR:', err)
         el_tracker.exitCalibration()
-
-
-
 
 time1 = 0  # variables for recording response time data
 time2 = 0
@@ -441,7 +443,7 @@ if currCondition == 'SC':
         # clear the host screen before we draw the backdrop
         el_tracker.sendCommand('clear_screen 0')
 
-        page = ImageStim(win, image=stimFile.iloc[current_index])
+        page = visual.ImageStim(win, image=stimFile.iloc[current_index])
 
         im = Image.open(stimFile.iloc[current_index])  # read image with PIL
         im = im.resize((scn_width, scn_height))
@@ -461,11 +463,11 @@ if currCondition == 'SC':
         el_tracker.sendCommand(draw_cmd)
 
         # send a "TRIALID" message to mark the start of a trial
-        el_tracker.sendMessage('TRIALID %d' % current_index)
+        el_tracker.sendMessage("TRIALID %d" % current_index)
 
         # record_status_message : show some info on the Host PC
         # here we show how many trial has been tested
-        status_msg = 'TRIAL number %d' % stimFile.iloc[current_index]
+        status_msg = 'TRIAL number %s' % stimFile.iloc[current_index]
         el_tracker.sendCommand("record_status_message '%s'" % status_msg)
 
         # drift check
@@ -481,8 +483,6 @@ if currCondition == 'SC':
             # user pressed Ctrl-C to terminate the task
             if (not el_tracker.isConnected()) or el_tracker.breakPressed():
                 terminate_task()
-                return pylink.ABORT_EXPT
-
 
             # drift-check and re-do camera setup if ESCAPE is pressed
             try:
@@ -505,7 +505,6 @@ if currCondition == 'SC':
         except RuntimeError as error:
             print("ERROR:", error)
             abort_trial()
-            return pylink.TRIAL_ERROR
 
         # Allocate some time for the tracker to cache some samples
         pylink.pumpDelay(100)
@@ -538,7 +537,6 @@ if currCondition == 'SC':
         # "Protocol for EyeLink Data to Viewer Integration"
         ia_pars = (1, left, top, right, bottom, 'screen_center')
         el_tracker.sendMessage('!V IAREA RECTANGLE %d %d %d %d %d %s' % ia_pars)
-
 
         # Display the current image:
         page.draw()
@@ -577,7 +575,6 @@ if currCondition == 'SC':
                 page.draw()
                 win.flip()
 
-
         event.clearEvents()
 
         # clear the screen
@@ -592,12 +589,10 @@ if currCondition == 'SC':
 
         # record trial variables to the EDF data file, for details, see Data
         # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
-        el_tracker.sendMessage('!V TRIAL_VAR condition %s' % cond)
-        el_tracker.sendMessage('!V TRIAL_VAR image %s' % pic)
-        el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
+        el_tracker.sendMessage('!V TRIAL_VAR condition %s' % currCondition)
+        el_tracker.sendMessage('!V TRIAL_VAR image %s' % page)
+        # el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
 
         # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
         # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
         el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
-
-terminate_task()
