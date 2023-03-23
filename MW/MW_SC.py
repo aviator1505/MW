@@ -394,7 +394,7 @@ pageTimer = core.Clock()
 pagedwellTimer = core.Clock()
 ProbePage = core.Clock()
 probeTimer = core.Clock()  # this one stops and restarts every time one of our probe/intentionality images pops up
-myCount = 1  # this counts up and tells which value from the probe list we should use
+
 sc_img = visual.ImageStim(win, image='SC_v2.PNG')
 
 ############################### Stimuli ###############################
@@ -420,7 +420,7 @@ if currCondition == 'SC':
 
     # Start a loop that will continue until the escape key is pressed
     while current_index != 16:
-
+########################################################################################################################
         # get a reference to the currently active EyeLink connection
         el_tracker = pylink.getEYELINK()
 
@@ -429,8 +429,6 @@ if currCondition == 'SC':
 
         # clear the host screen before we draw the backdrop
         el_tracker.sendCommand('clear_screen 0')
-
-        page = visual.ImageStim(win, image=stimFile.iloc[current_index], size= 1440)
 
         im = Image.open(stimFile.iloc[current_index])  # read image with PIL
         im = im.resize((scn_width, scn_height))
@@ -495,28 +493,30 @@ if currCondition == 'SC':
 
         # Allocate some time for the tracker to cache some samples
         pylink.pumpDelay(100)
-
-        # show the image, and log a message to mark the onset of the image
+########################################################################################################################
         # Display the current image:
-
+        page = visual.ImageStim(win, image=stimFile.iloc[current_index], size=1440)
         page.draw()
         win.flip()
-        thisExp.addData('page', stimFile.iloc[current_index])
+
         page_display_start_time = pageTimer.getTime()
         page_start = ProbePage.getTime()
+        thisExp.addData('page', stimFile.iloc[current_index])
+        thisExp.addData('thisPage_display_time', page_display_start_time)
         # Wait for key press:
         keys = kb.waitKeys()
+
+########################################################################################################################
+
+        # show the image, and log a message to mark the onset of the image
         el_tracker.sendMessage('image_onset')
         img_onset_time = core.getTime()  # record the image onset time
 
-        # Send a message to clear the Data Viewer screen, get it ready for
-        # drawing the pictures during visualization
+        # Send a message to clear the Data Viewer screen, get it ready for drawing the pictures during visualization
         bgcolor_RGB = (116, 116, 116)
         el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
 
-        # send over a message to specify where the image is stored relative
-        # to the EDF data file, see Data Viewer User Manual, "Protocol for
-        # EyeLink Data to Viewer Integration"
+        # send over a message to specify where the image is stored relative to the EDF data file
         bg_image = 'D:\LabResearch\BARLab\Development\MW' + stimFile.iloc[current_index]
 
         imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
@@ -526,20 +526,23 @@ if currCondition == 'SC':
                                                             int(scn_height))
 
         el_tracker.sendMessage(imgload_msg)
-        # for all supported interest area commands, see the Data Viewer Manual,
-        # "Protocol for EyeLink Data to Viewer Integration"
+
         ia_pars = (1, left, top, right, bottom, 'screen_center')
         el_tracker.sendMessage('!V IAREA RECTANGLE %d %d %d %d %d %s' % ia_pars)
 
+########################################################################################################################
         if 'space' in keys:  # If space is pressed, log time spent on page and switch page.
             current_index = (current_index + 1) % len(stimFile)
             pageDwell = pagedwellTimer.getTime()
+            el_tracker.sendMessage('page change @' + str(pageDwell))
             thisExp.addData('time_spent_on_page', pageDwell)
             thisExp.nextEntry()
             pagedwellTimer.reset(0)
 
         if '1' in keys:
             ProbeTimeAbs = mainTimer.getTime()
+            el_tracker.sendMessage('Caught_MW')
+
             TimeSinceLastProbe = probeTimer.getTime()  # only gets called when probe appears.
             probe_page = ProbePage.getTime() - page_start
 
@@ -556,19 +559,21 @@ if currCondition == 'SC':
                 if 'i' in keys:
                     thisExp.addData('probe_key_response',
                                     'Intentional Mind Wandering')  # log the key response to the probe
+                    el_tracker.sendMessage('Intentional_MW')
                 if 'u' in keys:
                     thisExp.addData('probe_key_response', 'Unintentional Mind Wandering')
-                thisExp.addData('page', stimFile.iloc[current_index])
-                thisExp.addData('thisPage_display_time', page_display_start_time)
+                    el_tracker.sendMessage('UNintentional_MW')
+
                 thisExp.addData('thisPage_probe_time', probe_page)  # time after page display when probe appears.
 
-                thisExp.addData('probe_appeared',
-                                ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
-                thisExp.addData('time_since_last_probe',
-                                TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
-                thisExp.addData('response_delay',
-                                Response_Delay)  # log delay from probe appearing to response key being pressed
+                thisExp.addData('probe_appeared',ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
+
+                thisExp.addData('time_since_last_probe', TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
+
+                thisExp.addData('response_delay', Response_Delay)  # log delay from probe appearing to response key being pressed
+
                 thisExp.addData('condition', currCondition)  # save the current condition
+
                 thisExp.nextEntry()
 
                 # Reset all the timers since we only want timings pertaining to the current loop.
@@ -602,7 +607,6 @@ if currCondition == 'SC':
         # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
         # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
         el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
-
 
 end_message = 'You have now completed part 1 of the experiment. Please contact the researcher to help you get started with part 2.'
 
