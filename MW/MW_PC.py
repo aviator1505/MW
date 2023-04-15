@@ -388,7 +388,6 @@ if not dummy_mode:
         print('ERROR:', err)
         el_tracker.exitCalibration()
 
-
 # start clocks
 mainTimer = core.Clock()
 pageTimer = core.Clock()
@@ -416,204 +415,261 @@ for idx, val in instrFile.iteritems():
     # pause till p presses space.
     kb.waitKeys(keyList=['space'])
 
-if currCondition == 'SC':
-    # make an index to keep track of the iteration of page being displayed.
-    current_index = 0
-    last_index = None
-    probe2 = [0, 91, 112, 74, 98, 113, 62, 92, 79, 76, 62]
+########################################
+########################################
+########################################
 
-    # Start a loop that will continue until the escape key is pressed
-    while current_index != 16:
-########################################################################################################################
-        # get a reference to the currently active EyeLink connection
-        el_tracker = pylink.getEYELINK()
+# if currCondition == 'PC':
 
-        # put the tracker in the offline mode first
-        el_tracker.setOfflineMode()
+# make an index to keep track of the iteration of page being displayed.
+current_index = 0
+# probe2 = [0, 91, 112, 74, 98, 113, 62, 92, 79, 76, 62]
+probe_times = [6, 3, 5, 2, 7, 6, 5, 4, 2, 3, 6]
+probe_index = 0
 
-        # clear the host screen before we draw the backdrop
-        el_tracker.sendCommand('clear_screen 0')
+# Start a loop that will continue until the escape key is pressed
+while current_index != 16:
 
-        im = Image.open(stimFile.iloc[current_index])  # read image with PIL
-        im = im.resize((scn_width, scn_height))
-        img_pixels = im.load()  # access the pixel data of the image
-        pixels = [[img_pixels[i, j] for i in range(scn_width)]
-                  for j in range(scn_height)]
-        el_tracker.bitmapBackdrop(scn_width, scn_height, pixels,
-                                  0, 0, scn_width, scn_height,
-                                  0, 0, pylink.BX_MAXCONTRAST)
+    ########################################################################################################################
+    # # get a reference to the currently active EyeLink connection
+    # el_tracker = pylink.getEYELINK()
+    #
+    # # put the tracker in the offline mode first
+    # el_tracker.setOfflineMode()
+    #
+    # # clear the host screen before we draw the backdrop
+    # el_tracker.sendCommand('clear_screen 0')
+    #
+    # im = Image.open(stimFile.iloc[current_index])  # read image with PIL
+    # im = im.resize((scn_width, scn_height))
+    # img_pixels = im.load()  # access the pixel data of the image
+    # pixels = [[img_pixels[i, j] for i in range(scn_width)]
+    #           for j in range(scn_height)]
+    # el_tracker.bitmapBackdrop(scn_width, scn_height, pixels,
+    #                           0, 0, scn_width, scn_height,
+    #                           0, 0, pylink.BX_MAXCONTRAST)
+    #
+    # # OPTIONAL: draw landmarks and texts on the Host screen
+    # left = int(scn_width / 2.0) - 60
+    # top = int(scn_height / 2.0) - 60
+    # right = int(scn_width / 2.0) + 60
+    # bottom = int(scn_height / 2.0) + 60
+    # draw_cmd = 'draw_filled_box %d %d %d %d 1' % (left, top, right, bottom)
+    # el_tracker.sendCommand(draw_cmd)
+    #
+    # # send a "TRIALID" message to mark the start of a trial
+    # el_tracker.sendMessage("TRIALID %d" % current_index)
+    #
+    # # record_status_message : show some info on the Host PC
+    # # here we show how many trial has been tested
+    # status_msg = 'TRIAL number %s' % stimFile.iloc[current_index]
+    # el_tracker.sendCommand("record_status_message '%s'" % status_msg)
+    #
+    # # drift check
+    # # we recommend drift-check at the beginning of each trial
+    # # the doDriftCorrect() function requires target position in integers
+    # # the last two arguments:
+    # # draw_target (1-default, 0-draw the target then call doDriftCorrect)
+    # # allow_setup (1-press ESCAPE to recalibrate, 0-not allowed)
+    # #
+    # # Skip drift-check if running the script in Dummy Mode
+    # while not dummy_mode:
+    #     # terminate the task if no longer connected to the tracker or
+    #     # user pressed Ctrl-C to terminate the task
+    #     if (not el_tracker.isConnected()) or el_tracker.breakPressed():
+    #         terminate_task()
+    #
+    #     # drift-check and re-do camera setup if ESCAPE is pressed
+    #     try:
+    #         error = el_tracker.doDriftCorrect(int(scn_width / 2.0),
+    #                                           int(scn_height / 2.0), 1, 1)
+    #         # break following a success drift-check
+    #         if error is not pylink.ESC_KEY:
+    #             break
+    #     except:
+    #         pass
+    #
+    # # put tracker in idle/offline mode before recording
+    # el_tracker.setOfflineMode()
+    #
+    # # Start recording
+    # # arguments: sample_to_file, events_to_file, sample_over_link,
+    # # event_over_link (1-yes, 0-no)
+    # try:
+    #     el_tracker.startRecording(1, 1, 1, 1)
+    # except RuntimeError as error:
+    #     print("ERROR:", error)
+    #     abort_trial()
+    #
+    # # Allocate some time for the tracker to cache some samples
+    # pylink.pumpDelay(100)
+    ########################################################################################################################
 
-        # OPTIONAL: draw landmarks and texts on the Host screen
-        left = int(scn_width / 2.0) - 60
-        top = int(scn_height / 2.0) - 60
-        right = int(scn_width / 2.0) + 60
-        bottom = int(scn_height / 2.0) + 60
-        draw_cmd = 'draw_filled_box %d %d %d %d 1' % (left, top, right, bottom)
-        el_tracker.sendCommand(draw_cmd)
+    # Display the current image:
+    page = visual.ImageStim(win, image=stimFile.iloc[current_index], size=1440)
+    page.draw()
+    win.flip()
 
-        # send a "TRIALID" message to mark the start of a trial
-        el_tracker.sendMessage("TRIALID %d" % current_index)
+    # # show the image, and log a message to mark the onset of the image
+    # el_tracker.sendMessage('image_onset')
+    # img_onset_time = core.getTime()  # record the image onset time
+    #
+    # # Send a message to clear the Data Viewer screen, get it ready for drawing the pictures during visualization
+    # bgcolor_RGB = (116, 116, 116)
+    # el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
+    #
+    # # send over a message to specify where the image is stored relative to the EDF data file
+    # bg_image = 'D:\LabResearch\BARLab\Development\MW' + stimFile.iloc[current_index]
+    #
+    # imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
+    #                                                     int(scn_width / 2.0),
+    #                                                     int(scn_height / 2.0),
+    #                                                     int(scn_width),
+    #                                                     int(scn_height))
+    #
+    # el_tracker.sendMessage(imgload_msg)
+    #
+    # ia_pars = (1, left, top, right, bottom, 'screen_center')
+    # el_tracker.sendMessage('!V IAREA RECTANGLE %d %d %d %d %d %s' % ia_pars)
 
-        # record_status_message : show some info on the Host PC
-        # here we show how many trial has been tested
-        status_msg = 'TRIAL number %s' % stimFile.iloc[current_index]
-        el_tracker.sendCommand("record_status_message '%s'" % status_msg)
 
-        # drift check
-        # we recommend drift-check at the beginning of each trial
-        # the doDriftCorrect() function requires target position in integers
-        # the last two arguments:
-        # draw_target (1-default, 0-draw the target then call doDriftCorrect)
-        # allow_setup (1-press ESCAPE to recalibrate, 0-not allowed)
-        #
-        # Skip drift-check if running the script in Dummy Mode
-        while not dummy_mode:
-            # terminate the task if no longer connected to the tracker or
-            # user pressed Ctrl-C to terminate the task
-            if (not el_tracker.isConnected()) or el_tracker.breakPressed():
-                terminate_task()
+    # Start timer
+    page_display_start_time = pageTimer.getTime()
+    page_start = ProbePage.getTime()  # IDK why I used probepage here. Confusing.
 
-            # drift-check and re-do camera setup if ESCAPE is pressed
-            try:
-                error = el_tracker.doDriftCorrect(int(scn_width / 2.0),
-                                                  int(scn_height / 2.0), 1, 1)
-                # break following a success drift-check
-                if error is not pylink.ESC_KEY:
-                    break
-            except:
-                pass
+    # Record Page Number.
+    thisExp.addData('page', stimFile.iloc[current_index])
 
-        # put tracker in idle/offline mode before recording
-        el_tracker.setOfflineMode()
+    # Record the time at which the current page is displayed.
+    thisExp.addData('thisPage_display_time', page_display_start_time)
 
-        # Start recording
-        # arguments: sample_to_file, events_to_file, sample_over_link,
-        # event_over_link (1-yes, 0-no)
-        try:
-            el_tracker.startRecording(1, 1, 1, 1)
-        except RuntimeError as error:
-            print("ERROR:", error)
-            abort_trial()
-
-        # Allocate some time for the tracker to cache some samples
-        pylink.pumpDelay(100)
-########################################################################################################################
-        if last_index != current_index:
-            # Display the current image:
-            page = visual.ImageStim(win, image=stimFile.iloc[current_index], size=1440)
-            page.draw()
+    while True:
+        # Check if it's time to display the probe
+        if probe_index < len(probe_times) and popUpTimer.getTime() >= sum(probe_times[: probe_index + 1]):
+            pc_img.draw()
             win.flip()
-            last_index = current_index
 
-            # Record the time at which the current page is displayed.
-            page_display_start_time = pageTimer.getTime()
-            page_start = ProbePage.getTime()
-            thisExp.addData('page', stimFile.iloc[current_index])
-            thisExp.addData('thisPage_display_time', page_display_start_time)
-            # Wait for key press:
-            keys = kb.waitKeys()
-
-########################################################################################################################
-
-        # show the image, and log a message to mark the onset of the image
-        el_tracker.sendMessage('image_onset')
-        img_onset_time = core.getTime()  # record the image onset time
-
-        # Send a message to clear the Data Viewer screen, get it ready for drawing the pictures during visualization
-        bgcolor_RGB = (116, 116, 116)
-        el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
-
-        # send over a message to specify where the image is stored relative to the EDF data file
-        bg_image = 'D:\LabResearch\BARLab\Development\MW' + stimFile.iloc[current_index]
-
-        imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
-                                                            int(scn_width / 2.0),
-                                                            int(scn_height / 2.0),
-                                                            int(scn_width),
-                                                            int(scn_height))
-
-        el_tracker.sendMessage(imgload_msg)
-
-        ia_pars = (1, left, top, right, bottom, 'screen_center')
-        el_tracker.sendMessage('!V IAREA RECTANGLE %d %d %d %d %d %s' % ia_pars)
-
-########################################################################################################################
-        if 'space' in keys:  # If space is pressed, log time spent on page and switch page.
-            current_index = (current_index + 1) % len(stimFile)
-            pageDwell = pagedwellTimer.getTime()
-            el_tracker.sendMessage('page change @' + str(pageDwell))
-            thisExp.addData('time_spent_on_page', pageDwell)
-            thisExp.nextEntry()
-            pagedwellTimer.reset(0)
-
-        if '1' in keys:
             ProbeTimeAbs = mainTimer.getTime()
             el_tracker.sendMessage('Caught_MW')
 
             TimeSinceLastProbe = probeTimer.getTime()  # only gets called when probe appears.
             probe_page = ProbePage.getTime() - page_start
 
-            pc_img.draw()
-            win.flip()
+            # Wait for the user to respond to the probe
+            KKeys = kb.waitKeys(keyList=['i', 'u', 'q', '0'])
 
-            keys = kb.waitKeys(keyList=['i', 'u'])
+            if 'q' in KKeys:
+                core.quit()
 
-            if 'i' in keys or 'u' in keys:
+            if 'i' in KKeys or 'u' in KKeys:
 
                 Response_Delay = mainTimer.getTime() - ProbeTimeAbs
 
                 # Store MW Intentionality responses based on keypress
-                if 'i' in keys:
+                if 'i' in KKeys:
                     thisExp.addData('probe_key_response',
                                     'Intentional Mind Wandering')  # log the key response to the probe
                     el_tracker.sendMessage('Intentional_MW')
-                if 'u' in keys:
+                if 'u' in KKeys:
                     thisExp.addData('probe_key_response', 'Unintentional Mind Wandering')
                     el_tracker.sendMessage('UNintentional_MW')
 
+                if '0' in KKeys:
+                    thisExp.addData('probe_key_response', 'NOT Mindwandering')
+                    el_tracker.sendMessage('NOT Mindwandering')
+
                 thisExp.addData('thisPage_probe_time', probe_page)  # time after page display when probe appears.
 
-                thisExp.addData('probe_appeared',ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
+                thisExp.addData('probe_appeared',
+                                ProbeTimeAbs)  # log the time that the SC probe appeared (user pressed '1' key)
 
-                thisExp.addData('time_since_last_probe', TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
+                thisExp.addData('time_since_last_probe',
+                                TimeSinceLastProbe)  # log time since last probe. Should be time since start of experiment if this is the first probe
 
-                thisExp.addData('response_delay', Response_Delay)  # log delay from probe appearing to response key being pressed
+                thisExp.addData('response_delay',
+                                Response_Delay)  # log delay from probe appearing to response key being pressed
 
                 thisExp.addData('condition', currCondition)  # save the current condition
 
                 thisExp.nextEntry()
 
-                # Reset all the timers since we only want timings pertaining to the current loop.
+            # Increment the probe_index and reset the clock
+            probe_index += 1
+            popUpTimer.reset()
 
-                probeTimer.reset(0)
-                timePC = 0
-                Response_Delay = 0
-                respPC = []
-                respSC = []
-                page.draw()
-                win.flip()
+            # Redraw the current image after the probe response
+            page.draw()
+            win.flip()
 
-        event.clearEvents()
+            # Check for key presses to move forward
 
-        # clear the screen
 
-        el_tracker.sendMessage('blank_screen')
-        # send a message to clear the Data Viewer screen as well
-        el_tracker.sendMessage('!V CLEAR 128 128 128')
+        key = kb.getKeys(keyList=['space', 'escape'])
 
-        # stop recording; add 100 msec to catch final events before stopping
-        pylink.pumpDelay(100)
-        el_tracker.stopRecording()
 
-        # record trial variables to the EDF data file, for details, see Data
-        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
-        el_tracker.sendMessage('!V TRIAL_VAR condition %s' % currCondition)
-        el_tracker.sendMessage('!V TRIAL_VAR image %s' % page)
-        # el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
+        if 'space' in key:
+            current_index += 1
+            # clock.reset()
+            pageDwell = pageDwellTimer.getTime()
+            el_tracker.sendMessage('page change @' + str(pageDwell))
+            thisExp.addData('time_spent_on_page', pageDwell)
+            thisExp.nextEntry()
+            pageDwellTimer.reset(0)
+            break
+            # Break the loop if the user presses 'q'
+        elif 'escape' in key:
+            core.quit()
 
-        # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
-        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
-        el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
+    probeTimer.reset(0)
+
+    Response_Delay = 0
+
+    ########################################################################################################################
+
+    # # show the image, and log a message to mark the onset of the image
+    # el_tracker.sendMessage('image_onset')
+    # img_onset_time = core.getTime()  # record the image onset time
+    #
+    # # Send a message to clear the Data Viewer screen, get it ready for drawing the pictures during visualization
+    # bgcolor_RGB = (116, 116, 116)
+    # el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
+    #
+    # # send over a message to specify where the image is stored relative to the EDF data file
+    # bg_image = 'D:\LabResearch\BARLab\Development\MW' + stimFile.iloc[current_index]
+    #
+    # imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
+    #                                                     int(scn_width / 2.0),
+    #                                                     int(scn_height / 2.0),
+    #                                                     int(scn_width),
+    #                                                     int(scn_height))
+    #
+    # el_tracker.sendMessage(imgload_msg)
+    #
+    # ia_pars = (1, left, top, right, bottom, 'screen_center')
+    # el_tracker.sendMessage('!V IAREA RECTANGLE %d %d %d %d %d %s' % ia_pars)
+
+    event.clearEvents()
+
+    # clear the screen
+
+    el_tracker.sendMessage('blank_screen')
+    # send a message to clear the Data Viewer screen as well
+    el_tracker.sendMessage('!V CLEAR 128 128 128')
+
+    # stop recording; add 100 msec to catch final events before stopping
+    pylink.pumpDelay(100)
+    el_tracker.stopRecording()
+
+    # record trial variables to the EDF data file, for details, see Data
+    # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+    el_tracker.sendMessage('!V TRIAL_VAR condition %s' % currCondition)
+    el_tracker.sendMessage('!V TRIAL_VAR image %s' % page)
+    # el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
+
+    # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
+    # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+    el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
+
 
 end_message = 'You have now completed part 1 of the experiment. Please contact the researcher to help you get started with part 2.'
 
